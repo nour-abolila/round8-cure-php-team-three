@@ -16,9 +16,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('doctor_id')->constrained('doctors')->onDelete('cascade');
-            $table->dateTime('booking_date');
+            $table->date('booking_date');
+            $table->time('booking_time');
             $table->enum('status',['Upcoming','Complated','Cancled']);
-            $table->string('payment_method');
+            $table->foreignId('payment_method_id')->constrained('payment_methods')->onDelete('cascade');
             $table->timestamps();
         });
     }
