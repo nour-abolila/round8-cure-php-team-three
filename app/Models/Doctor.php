@@ -4,7 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class doctor extends Model
+class Doctor extends Model
 {
- protected $guarded = [];  
+ protected $guarded = [];
+
+ public function bookings()
+ {
+    return $this->hasMany(Booking::class);
+ }
 }

@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chat::class,'sender_to_id');
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
