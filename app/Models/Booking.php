@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
     protected $fillable = ['user_id','doctor_id','booking_date','booking_time','status','payment_method_id'];
+
+    protected $cast = [
+        'status' => BookingStatus::class,
+    ];
 
     public function user()
     {
