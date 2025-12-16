@@ -23,6 +23,8 @@ class UserController extends Controller
             'mobile_number' => $request->mobile_number,
             // 'profile_photo' => null,
         ]);
+        $user->assignRole('patient');
+        
         return response()->json([
         'message' =>'Sign Up Successfully' ,
         'user' =>$user->only(['id','name','email','mobile_number']) 
