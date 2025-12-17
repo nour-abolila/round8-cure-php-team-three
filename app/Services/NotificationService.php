@@ -21,15 +21,22 @@ class NotificationService
     }
 
 
-    public function sendToDoctor(User $doctor, string $title, string $body)
-    {
-        return Notification::create([
-            'user_id' => $doctor->id,
-            'title' => $title,
-            'body' => $body,
-            'is_read' => false
-        ]);
+public function sendToDoctor($doctor, string $title, string $body)
+{
+    if ($doctor instanceof Doctor) {
+        $userId = $doctor->user_id;
     }
+    else {
+        $userId = $doctor->id;
+    }
+
+    return Notification::create([
+        'user_id' => $userId,
+        'title' => $title,
+        'body' => $body,
+        'is_read' => false
+    ]);
+}
 
 
     public function sendToAdmin(User $admin, string $title, string $body)
@@ -73,24 +80,24 @@ class NotificationService
     }
 
 
-    public function sendNewBookingNotification(User $doctor, Booking $booking)
+    public function sendNewBookingNotification($doctor, Booking $booking)
     {
-        return $this->sendToDoctor(
-            $doctor,
-            'New Booking Request',
-            "You have a new booking request from {$booking->user->name} for {$booking->booking_date} at {$booking->booking_time}"
-        );
+    return $this->sendToDoctor(
+        $doctor,
+        'New Booking Request',
+        "You have a new booking request from {$booking->user->name} for {$booking->booking_date}"
+    );
     }
 
 
-    public function sendNewReviewNotification(User $doctor, array $reviewData)
-    {
-        return $this->sendToDoctor(
-            $doctor,
-            'New Review Received',
-            "You received a {$reviewData['rating']}-star review from {$reviewData['patient_name']}"
-        );
-    }
+public function sendNewReviewNotification($doctor, array $reviewData)
+{
+    return $this->sendToDoctor(
+        $doctor,
+        'New Review Received',
+        "You received a {$reviewData['rating']}-star review from {$reviewData['patient_name']}"
+    );
+}
 
 
     public function sendNewChatNotification(User $doctor, array $chatData)
@@ -161,7 +168,7 @@ class NotificationService
         return $this->sendBroadcastNotification($doctorIds, $title, $message);
     }
 
-    
+
     public function broadcastToAll(string $title, string $message)
     {
         $allUserIds = User::where('is_active', true)
