@@ -23,7 +23,7 @@ class PatientProfileController extends Controller
     $user = auth()->user();
     $validation = Validator::make($request->all(),[
             'name' => 'required|string|max:255',
-            'email' => 'required|string|max:255|email|unique:users',
+            'email' => 'required|string|max:255|email|unique:users'. $user->id,
             'mobile_number' =>'string|max:20',
             'birth_date' =>'nullable|date',
             'location' =>'nullable|json',

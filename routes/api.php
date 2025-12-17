@@ -30,5 +30,7 @@ Route::get('auth/google',[SocialiteController::class,'redirectToGoogle']);
 Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallback']);
 
 //patient profile
+Route::middleware(['auth:sanctum', 'role:patient'])->group(function() {
 Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
 Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
+});
