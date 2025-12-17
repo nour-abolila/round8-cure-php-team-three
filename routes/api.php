@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DoctorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -8,9 +9,11 @@ use App\Http\Controllers\OtpController;
 use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\PatientProfileController;
 
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
 
 Route::post('register',[UserController::class,'register']);
 Route::post('login',[UserController::class,'login']);
@@ -35,3 +38,6 @@ Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
 Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
 Route::put('/patient/profile/changePassword', [PatientProfileController::class, 'changePassword']);
 });
+
+Route::post('/doctors', [DoctorController::class, 'store']);
+
