@@ -33,4 +33,5 @@ Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallb
 Route::middleware(['auth:sanctum', 'role:patient'])->group(function() {
 Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
 Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
+Route::put('/patient/profile/changePassword', [PatientProfileController::class, 'changePassword']);
 });

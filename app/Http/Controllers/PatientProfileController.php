@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\User;
-// use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -23,7 +23,7 @@ class PatientProfileController extends Controller
     $user = auth()->user();
     $validation = Validator::make($request->all(),[
             'name' => 'required|string|max:255',
-            'email' => 'required|string|max:255|email|unique:users'. $user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'mobile_number' =>'string|max:20',
             'birth_date' =>'nullable|date',
             'location' =>'nullable|json',
@@ -44,7 +44,28 @@ class PatientProfileController extends Controller
     $data = [
         'message' =>'Patient Profile Updated successfully',
         'user' =>$user,
+        'patient' =>$user->patient,
+
     ];
     return response()->json($data, 200);
    } 
+
+   public function changePassword(Request $request){
+    $user = auth()->user();
+   $request->validate([
+        'current_password' => 'required',
+        'new_password' => 'required|min:8|confirmed',
+    ]);
+    if(!\Hash::check($request->current_password,$user->password)){
+        return response()->json([
+            'message' => "Current password is incorrect",
+        ], 400);
+    }
+    $user->update([
+        'password' => \Hash::make($request->new_password), 
+    ]);
+    return response()->json([
+            'message' => "Password changed successfully",
+        ], 200);
+   }
 }
