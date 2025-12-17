@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\SocialiteController;
+use App\Http\Controllers\PatientProfileController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -27,3 +28,7 @@ Route::post('otpVerify',[OtpController::class,'otpVerify']);
 //log in with google
 Route::get('auth/google',[SocialiteController::class,'redirectToGoogle']);
 Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallback']);
+
+//patient profile
+Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
+Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
