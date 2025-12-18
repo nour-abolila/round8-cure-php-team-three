@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\User;
+use App\Models\Patient;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,10 @@ class UserController extends Controller
             // 'profile_photo' => null,
         ]);
         $user->assignRole('patient');
+
+         Patient::create([
+        'user_id' => $user->id,
+    ]);
         
         return response()->json([
         'message' =>'Sign Up Successfully' ,

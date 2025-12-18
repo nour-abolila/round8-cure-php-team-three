@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\SpecializationsSeeder;
 use Database\Seeders\DoctorSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
          $this->call([
+        RolesAndPermissionsSeeder::class,
         SpecializationsSeeder::class,
         DoctorSeeder::class,
     ]);
