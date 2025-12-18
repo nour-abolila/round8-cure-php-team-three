@@ -31,4 +31,8 @@ class Booking extends Model
     {
         return $this->status === 'Completed';
     }
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
 }

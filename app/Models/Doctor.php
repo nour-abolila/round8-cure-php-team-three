@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Doctor extends Model
 {
- use HasFactory;
- protected $fillable = [
+    use HasFactory;
+
+    protected $fillable = [
         'name',
         'email',
         'password',
@@ -27,11 +28,10 @@ class Doctor extends Model
 
     public function bookings()
     {
-       return $this->hasMany(Booking::class);
+        return $this->hasMany(Booking::class);
     }
 
-
-     public function reviews()
+    public function reviews()
     {
         return $this->hasMany(Review::class, 'doctor_id');
     }
@@ -49,5 +49,10 @@ class Doctor extends Model
     public function reviewsCount()
     {
         return $this->reviews()->count();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
