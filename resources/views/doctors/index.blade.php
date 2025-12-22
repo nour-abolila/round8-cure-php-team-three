@@ -8,10 +8,10 @@
                     <div class="card-header">
                         <div class="float-left">
                             Doctors
-                            <span class="badge badge-info">1</span>
+                            <span class="badge badge-info">{{count($doctors)}}</span>
                         </div>
                         <div class="float-right">
-                            <a href="" class="btn btn-success">Create New Doctor</a>
+                            <a href={{route('doctors.create')}} class="btn btn-success">Create New Doctor</a>
                             <a href={{route('home')}} class="btn btn-primary">Back</a>
                         </div>
                     </div>
@@ -30,9 +30,9 @@
                                     <td>{{$item->name}}</td>
                                     <td>{{$item->email}}</td>
                                     <td>
-                                        <a href="" class="btn btn-success">show</a>
+                                        <a href={{route('doctors.show')}} class="btn btn-success">show</a>
                                         <a href="" class="btn btn-warning">edit</a>
-                                        <a href="" class="btn btn-danger">delete</a>
+                                        <a href={{route('doctors.delete')}} class="btn btn-danger">delete</a>
                                     </td>
                                 </tr>
                                 @endforeach

@@ -8,7 +8,7 @@
                     <div class="card-header">
                         <div class="float-left">
                             Doctors
-                            <span class="badge badge-info">1</span>
+                            <span class="badge badge-info">{{count($doctors)}}</span>
                         </div>
                         <a href={{route('doctors.index')}} class="btn btn-success float-right">View All Doctors</a>
                     </div>

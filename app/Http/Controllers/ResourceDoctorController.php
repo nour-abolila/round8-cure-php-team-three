@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Doctor;
 class ResourceDoctorController extends Controller
@@ -20,7 +21,7 @@ class ResourceDoctorController extends Controller
      */
     public function create()
     {
-        //
+        return view ('doctors.create');
     }
 
     /**
@@ -28,7 +29,7 @@ class ResourceDoctorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
     }
 
     /**
@@ -36,7 +37,8 @@ class ResourceDoctorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $doctor = Doctor::findOrFail($id);
+        return view ('doctors.show',['doctor' => $doctor]);
     }
 
     /**
@@ -60,6 +62,8 @@ class ResourceDoctorController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $doctor = Doctor::findOrFail($id);
+        $doctor->delete();
+        return redirect()->route('doctors.index')->with('message','Deleted Successfully');
     }
 }

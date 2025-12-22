@@ -2,16 +2,16 @@
 
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ReviewController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\DoctorController;
-use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\DoctorController;
+use App\Http\Controllers\Api\PaymentWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\PasswordController;
-use App\Http\Controllers\OtpController;
-use App\Http\Controllers\SocialiteController;
-use App\Http\Controllers\PatientProfileController;
+use App\Http\Controllers\Api\Auth\UserController;
+use App\Http\Controllers\Api\Auth\PasswordController;
+use App\Http\Controllers\Api\Auth\OtpController;
+use App\Http\Controllers\Api\Auth\SocialiteController;
+use App\Http\Controllers\Api\PatientProfileController;
 
 
 

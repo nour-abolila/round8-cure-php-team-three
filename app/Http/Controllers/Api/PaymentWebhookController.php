@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;
 use App\Enums\BookingStatus;
 use App\Models\Payment;
 use Illuminate\Http\Request;
