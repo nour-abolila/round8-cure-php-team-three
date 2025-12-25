@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Enums\BookingStatus;
 use App\Models\Payment;
+use App\Repositories\Bookings\BookingsRepositories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PaymentWebhookController extends Controller
 {
+    public function __construct(
+        protected BookingsRepositories $bookingsRepositories,
+    )
+    {}
     public function handle(Request $request)
     {
         Log::info('Stripe webhook received', $request->all());
@@ -21,7 +26,10 @@ class PaymentWebhookController extends Controller
 
             if ($payment) {
                 $payment->update(['status' => 'success']);
-                $payment->booking->update(['status' => BookingStatus::Completed]);
+                $payment->booking->update(['status' => BookingStatus::Upcoming]);
+                
+                // حذف الموعد من المواعيد المتاحة بعد نجاح الدفع
+                $this->bookingsRepositories->deleteAppointment($payment->booking);
             }
             return response()->json(['ok' => true]);
         }
@@ -38,9 +46,12 @@ class PaymentWebhookController extends Controller
                 $payment->booking->update([
                     'status' => BookingStatus::Cancelled
                 ]);
+
+                $this->bookingsRepositories->restoreAppointment($payment->booking);
+
             }
             return response()->json(['ok' => false]);
         }
-        
+
     }
 }

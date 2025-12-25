@@ -25,7 +25,6 @@ class BookingController extends Controller
     {}
     public function store(BookingRequest $request)
     {
-        //transaction here =================================
         $paymentMethod = Payment_method::findOrFail($request->payment_method_id);
 
         $data = $request->validated();
@@ -35,10 +34,12 @@ class BookingController extends Controller
 
         $booking = $this->bookingsRepositories->create($data);
 
+        $this->bookingsRepositories->deleteAppointment($booking);
+
         $payment = $this->paymentService->process($booking, $paymentMethod);
 
         return response()->json([
-            'booking' => $booking,
+            'booking' => $booking->load('paymentMethod', 'payment', 'doctor', 'user'),
             'payment' => $payment,
             'message' => 'Payment is pending',
         ]);
@@ -55,9 +56,12 @@ class BookingController extends Controller
             'status' => BookingStatus::Cancelled->value,
         ]);
 
-        $payment = $booking->payment;
+        $this->bookingsRepositories->restoreAppointment($booking);
 
-        if ($payment && $payment->status === 'success' && $payment->payment_method->code === 'credit_card') {
+        $payment = $booking->payment()->first();
+
+        if ($payment && $payment->status === 'success' && $payment->paymentMethod->code === 'credit_card') {
+
             Stripe::setApiKey(config('services.stripe.secret'));
 
             $refund = Refund::create([
@@ -117,16 +121,31 @@ class BookingController extends Controller
     {
         $booking = $this->bookingsRepositories->findById($id);
 
+        $this->bookingsRepositories->restoreAppointment($booking);
+
         $this->bookingsRepositories->update($booking, [
             'booking_date' => $request->booking_date,
             'booking_time' => $request->booking_time,
             'status' => BookingStatus::Rescheduled->value,
         ]);
 
+        $this->bookingsRepositories->deleteAppointment($booking);
+
+        $paymentMethod = Payment_method::findOrFail($booking->payment_method_id);
+
+        $payment = $this->paymentService->process($booking, $paymentMethod);
+
         return response()->json([
             'success' => true,
             'booking' => $booking,
+            'payment' => $payment,
+            'message' => 'Payment is pending',
         ]);
+    }
+
+    public function getPaymentMethods()
+    {
+        return Payment_method::all();
     }
 
 }

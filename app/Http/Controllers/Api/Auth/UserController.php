@@ -30,12 +30,12 @@ class UserController extends Controller
          Patient::create([
         'user_id' => $user->id,
     ]);
-        
+
         return response()->json([
         'message' =>'Sign Up Successfully' ,
-        'user' =>$user->only(['id','name','email','mobile_number']) 
+        'user' =>$user->only(['id','name','email','mobile_number'])
         ], 201);
-    
+
    }
 
 
@@ -55,7 +55,7 @@ class UserController extends Controller
                 'User' => $user,
                 'Token' => $token,
     ], 201);}
-       
+
 }
 
    public function logout(Request $request){
