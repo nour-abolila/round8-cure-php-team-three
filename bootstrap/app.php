@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 
 
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -15,9 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'fake.doctor' => \App\Http\Middleware\FakeDoctorAuth::class,
+            'fake.admin' => \App\Http\Middleware\FakeAdmin::class,
+
         ]);
 
     })

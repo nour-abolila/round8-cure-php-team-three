@@ -7,17 +7,15 @@ use App\Models\Booking;
 use App\Models\Doctor;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Validator;
 
-class BookingRequest extends FormRequest
+class UpdateBookingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -25,18 +23,17 @@ class BookingRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'doctor_id' => ['required', 'integer', 'exists:doctors,id'],
-            'booking_date' => ['required', 'date', 'after_or_equal:today'],
-            'booking_time' => ['required', 'date_format:H:i'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'payment_method_id' => ['required', 'integer', 'exists:payment_methods,id'],
+            'doctor_id' => ['sometimes', 'integer', 'exists:doctors,id'],// for function withValidator
+            'booking_date' => ['sometimes', 'date', 'after_or_equal:today'],
+            'booking_time' => ['sometimes', 'date_format:H:i'],
         ];
     }
+
     // للتحقق من الوقت المتاح للطبيب
     public function withValidator(Validator $validator): void
     {
