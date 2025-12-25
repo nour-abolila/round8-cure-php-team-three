@@ -45,6 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/rateable-bookings', [ReviewController::class, 'rateableBookings']);
     Route::post('/reviews', [ReviewController::class, 'store']);
 
+    Route::get('/reviews/top-doctors', [ReviewController::class, 'topRatedDoctors']);
+    Route::get('/reviews/doctor/{doctorId}', [ReviewController::class, 'doctorReviews']);
+
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
@@ -80,6 +83,8 @@ Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
 Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
 Route::put('/patient/profile/changePassword', [PatientProfileController::class, 'changePassword']);
 Route::post('patient/bookings',[BookingController::class,'store']);
+Route::get('/patient/reviews/top-doctors', [ReviewController::class, 'topRatedDoctors']);
+Route::get('/patient/reviews/doctor/{doctorId}', [ReviewController::class, 'doctorReviews']);
 Route::get('patient/all-bookings',[BookingController::class,'getBookingsUser']);
 Route::post('patient/bookings/{booking}/cancel',[BookingController::class,'cancelByPatient']);
 Route::post('patient/bookings/{booking}/reschedule',[BookingController::class,'rescheduleByPatient']);
