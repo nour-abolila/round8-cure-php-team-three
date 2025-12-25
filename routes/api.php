@@ -48,6 +48,7 @@ Route::get('/doctors/nearby', [DoctorController::class, 'nearby']); // Endpoint 
 
 //! ================== Auth system ============================
 Route::post('register',[UserController::class,'register']);
+Route::post('otpVerifyForRegister',[UserController::class,'otpVerifyForRegister']);
 Route::post('login',[UserController::class,'login']);
 Route::post('logout',[UserController::class,'logout'])
 ->middleware('auth:sanctum')
