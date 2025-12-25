@@ -18,7 +18,7 @@ class ResourceDoctorController extends Controller
     public function index()
     {
         $doctors = Doctor::with('user')->get();
-       
+
         return view ('doctors.index',['doctors' => $doctors]);
     }
 
@@ -30,9 +30,9 @@ class ResourceDoctorController extends Controller
         $users = User::doesntHave('doctor')->get();
 
         $specializations = Specialization::all();
-        
+
         return view ('doctors.create',['users' => $users ,'specializations' => $specializations]);
-       
+
     }
 
     /**
@@ -42,7 +42,9 @@ class ResourceDoctorController extends Controller
     {
         $validation = $request->validated();
 
-        Doctor::create($validation);
+        $doctor = Doctor::create($request->validated() + [
+            'password' => Hash::make($validation['password']),
+        ]);
 
         User::find($request->user_id)->assignRole('doctor');
 
@@ -57,9 +59,9 @@ class ResourceDoctorController extends Controller
         $doctor = Doctor::findOrFail($id);
 
         $user = User::select('name','email','mobile_number')->where('id',$doctor->user_id)->first();
-        
+
         $specializations = Specialization::select('id','name')->where('id',$doctor->specializations_id)->first();
-        
+
         return view ('doctors.show',['doctor' => $doctor ,'user' => $user, 'specializations' => $specializations]);
     }
 
@@ -73,7 +75,7 @@ class ResourceDoctorController extends Controller
         $users = User::doesntHave('doctor')->orWhere('id', $doctor->user_id)->get();
 
         $specializations = Specialization::all();
-        
+
         return view ('doctors.edit',['doctor' => $doctor,'users' => $users ,'specializations' => $specializations]);
     }
 
@@ -85,11 +87,11 @@ class ResourceDoctorController extends Controller
          $doctor = Doctor::findOrFail($id);
 
         $validation = $request->validated();
-        
+
         $doctor->update($validation);
 
         return redirect()->route('doctors.index')->with('doctor_message','Updated Successfully');
-    
+
     }
 
     /**
@@ -100,7 +102,7 @@ class ResourceDoctorController extends Controller
         $doctor = Doctor::findOrFail($id);
 
         $doctor->delete();
-        
+
         return redirect()->route('doctors.index')->with('doctor_message','Deleted Successfully');
     }
 }
