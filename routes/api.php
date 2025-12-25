@@ -79,6 +79,7 @@ Route::post('patient/bookings/{booking}/reschedule',[BookingController::class,'r
 });
 
 
+
 Route::post('webhook/stripe', [PaymentWebhookController::class, 'handle']);
 
 Route::middleware(['auth:sanctum','role:doctor'])->group(function() {
