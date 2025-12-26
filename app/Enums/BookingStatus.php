@@ -7,7 +7,7 @@ enum BookingStatus: string
     case Upcoming  = 'Upcoming';
     case Completed = 'Completed';
     case Cancelled = 'Cancelled';
-
+    case Reserved  = 'Reserved';
     case Rescheduled = 'Rescheduled';
 
     /**

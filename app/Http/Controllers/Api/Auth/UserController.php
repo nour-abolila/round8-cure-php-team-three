@@ -21,15 +21,15 @@ class UserController extends Controller
     
                 'email' => ['required','string','max:255','email','unique:users,email'],
     
-            'password' => [
-                    'required',
-                    'min:8',
-                    'confirmed',
-                    'regex:/[a-z]/',      
-                    'regex:/[A-Z]/',      
-                    'regex:/[0-9]/',      
-                    'regex:/[@$!%*?&]/',  
-                ],
+                'password' => [
+                        'required',
+                        'min:8',
+                        'confirmed',
+                        'regex:/[a-z]/',      
+                        'regex:/[A-Z]/',      
+                        'regex:/[0-9]/',      
+                        'regex:/[@$!%*?&]/',  
+                    ],
     
                 'mobile_number' => ['required','string','max:11','unique:users,mobile_number']
             ],[
@@ -92,23 +92,24 @@ class UserController extends Controller
        
             'otp'=> 'required'
         ]);
-        
+
         $user = User::where('mobile_number',$request->mobile_number)->first();
-        
+
         if(!$user){
        
             return response()->json([
        
                 'message' =>'User not found'], 404); 
         }
-        
+
         if($user->otp !== $request->otp){
 
             return response()->json([
-            
+
                 'message' =>'Invalid Otp'
             ], 400); 
         } 
+
 
         if(Carbon::now()->greaterThan($user->otp_expires_at)){
             
@@ -116,9 +117,8 @@ class UserController extends Controller
 
                 'message' =>'Expired Otp'], 400); 
         }
-        
-        $user->update([
 
+        $user->update([
             
             'mobile_verified' => true,
             
@@ -132,8 +132,8 @@ class UserController extends Controller
                 'message' =>'Otp verified successfully , Sign Up Successfully',
             
                 'user' =>$user->only(['id','name','email','mobile_number']),
-            ], 200); 
-        
+            ], 200);
+
 
     }
 
@@ -142,16 +142,15 @@ class UserController extends Controller
 
         $request->validate([
 
-        'mobile_number' =>'required|string|max:20',
+        'mobile_number' =>'required|string|max:11',
        
         'password' =>'required|min:8',
       ]);
     
-        if(!Auth::attempt($request->only('mobile_number','password'))){
+    if(!Auth::attempt($request->only('mobile_number','password'))){
 
             return response()->json(['message'=>'Invalid Phone Number or Password'], 401);
-        
-        }else{
+    }
         
             $user=User::where('mobile_number',$request->mobile_number)->firstOrFail();
 
@@ -172,9 +171,11 @@ class UserController extends Controller
                     'User' => $user,
                     
                     'Token' => $token,
-        ], 201);}
+        ], 201);
        
     }
+
+
 
     public function logout(Request $request)
     {
