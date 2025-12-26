@@ -78,7 +78,7 @@ Route::get('auth/google',[SocialiteController::class,'redirectToGoogle']);
 Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallback']);
 
 //patient profile
-Route::middleware(['auth:sanctum','role:patient'])->group(function() {
+Route::middleware(['auth:sanctum'])->group(function() {
 Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
 Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
 Route::put('/patient/profile/changePassword', [PatientProfileController::class, 'changePassword']);
@@ -90,6 +90,7 @@ Route::post('patient/bookings/{booking}/cancel',[BookingController::class,'cance
 Route::post('patient/bookings/{booking}/reschedule',[BookingController::class,'rescheduleByPatient']);
 });
 
+Route::get('payment-methods', [BookingController::class, 'getPaymentMethods']);
 
 
 Route::post('webhook/stripe', [PaymentWebhookController::class, 'handle']);

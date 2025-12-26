@@ -33,21 +33,25 @@ class UserController extends Controller
          Patient::create([
         'user_id' => $user->id,
     ]);
-        
+
+        // return response()->json([
+        // 'message' =>'Sign Up Successfully' ,
+        // 'user' =>$user->only(['id','name','email','mobile_number'])
+
         $otp = 1234;
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
 
-        
-        Log::info("OTP for {$user->mobile_number} is $otp"); 
+
+        Log::info("OTP for {$user->mobile_number} is $otp");
 
         return response()->json([
         'message' =>'OTP sent to your mobile.' ,
         'otp_code' => $otp
         ], 201);
-    
+
    }
 
     public function otpVerifyForRegister(Request $request){
@@ -55,27 +59,27 @@ class UserController extends Controller
            'mobile_number' =>'required|string|max:20',
             'otp'=> 'required'
         ]);
-        
+
         $user = User::where('mobile_number',$request->mobile_number)->first();
-        
+
         if(!$user){
             return response()->json([
                 'message' =>'User not found',
-            ], 404); 
+            ], 404);
         }
-        
+
         if($user->otp !== $request->otp){
             return response()->json([
                 'message' =>'Invalid Otp',
-            ], 400); 
-        } 
+            ], 400);
+        }
 
         if(Carbon::now()->greaterThan($user->otp_expires_at)){
             return response()->json([
                 'message' =>'Expired Otp',
-            ], 400); 
+            ], 400);
         }
-        
+
         $user->update([
             'mobile_verified' => true,
             'otp' => null,
@@ -85,8 +89,8 @@ class UserController extends Controller
             return response()->json([
                 'message' =>'Otp verified successfully , Sign Up Successfully',
                 'user' =>$user->only(['id','name','email','mobile_number']),
-            ], 200); 
-        
+            ], 200);
+
 
     }
     public function login(Request $request){
@@ -113,7 +117,7 @@ class UserController extends Controller
                 'User' => $user,
                 'Token' => $token,
     ], 201);}
-       
+
 }
 
    public function logout(Request $request){

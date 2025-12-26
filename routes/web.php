@@ -24,15 +24,12 @@ Route::get('/home',[HomeController::class ,'index'])->name('home');
 
 Route::resource('/doctors',ResourceDoctorController::class );
 
-Route::middleware(['fake.doctor'])
-    ->prefix('doctor')
-    ->group(function () {
+Route::middleware(['auth','role:doctor'])->prefix('doctor')->group(function () {
         Route::view('bookings', 'doctor.bookings.index')->name('doctor.bookings');
     });
 
 
-Route::middleware(['fake.admin'])
-   ->group(function () {
+Route::middleware(['auth','role:admin'])->group(function () {
     Route::view('payments','admin.payments');
     Route::view('bookings','admin.booking');
 
