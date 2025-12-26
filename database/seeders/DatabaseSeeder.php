@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             SpecializationsSeeder::class,
             DoctorSeeder::class,
             AssignDoctorRolesSeeder::class,
+            DoctorBookingsSeeder::class,
         ]);
     }
 }

@@ -50,10 +50,8 @@ Route::get('/doctors/nearby', [DoctorController::class, 'nearby']); // Endpoint 
 Route::post('register',[UserController::class,'register']);
 Route::post('otpVerifyForRegister',[UserController::class,'otpVerifyForRegister']);
 Route::post('login',[UserController::class,'login']);
-Route::post('logout',[UserController::class,'logout'])
-->middleware('auth:sanctum')
-->name('logout');
-;
+Route::post('logout',[UserController::class,'logout'])->middleware('auth:sanctum')->name('logout');
+
 Route::delete('delete',[UserController::class,'deleteAccount'])->middleware('auth:sanctum');
 
 //password => forget & reset
