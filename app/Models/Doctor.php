@@ -24,16 +24,13 @@ class Doctor extends Authenticatable
         'clinic_location'
     ];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
+    protected $casts = [   // هنا عملت دة عشان انا كاتب الداتا دى فى المايجريشن جيسون
         'session_price' => 'decimal:2',
         'availability_slots' => 'array',
         'clinic_location' => 'array'
     ];
+
+
 
     public function bookings()
     {
@@ -62,7 +59,7 @@ class Doctor extends Authenticatable
 
     public function user()
     {
-        return $this->belongsTo(User::class , 'user_id');
+        return $this->belongsTo(User::class ,'user_id');
     }
 
     public function notifications()

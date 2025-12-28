@@ -38,17 +38,18 @@ class BookingRequest extends FormRequest
         ];
     }
     // للتحقق من الوقت المتاح للطبيب
-    public function withValidator(Validator $validator): void
+   public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
             $doctorId = $this->input('doctor_id');
             $bookingDate = $this->input('booking_date');
-            $bookingTime = $this->input('booking_time');
+            $bookingTime = trim($this->input('booking_time')); // إزالة أي فراغات
 
             if (!$doctorId || !$bookingDate || !$bookingTime) {
                 return;
             }
-            //بحال كان في حجز بنفس الوقت والتاريخ من مستخدم تاني
+
+            // تحقق من عدم وجود حجز متضارب
             $conflictExists = Booking::query()
                 ->where('doctor_id', $doctorId)
                 ->whereDate('booking_date', $bookingDate)
@@ -67,38 +68,63 @@ class BookingRequest extends FormRequest
             }
 
             try {
-                $date = Carbon::parse($bookingDate);
-                $time = Carbon::createFromFormat('H:i', (string) $bookingTime);
+                $bookingTimeMinutes = Carbon::parse($bookingTime)->hour * 60 + Carbon::parse($bookingTime)->minute;
             } catch (\Throwable) {
+                $validator->errors()->add('booking_time', 'تنسيق الوقت غير صحيح.');
                 return;
             }
 
-            $dayName = strtolower($date->format('l'));
             $slots = is_array($doctor->availability_slots) ? $doctor->availability_slots : [];
+            $valid = false;
 
             foreach ($slots as $slot) {
-                if (!is_array($slot)) {
-                    continue;
-                }
-
-                if (strtolower((string) ($slot['day'] ?? '')) !== $dayName) {
+                if (!is_array($slot)) continue;
+                
+                // مقارنة التاريخ مباشرة (date) وليس يوم الأسبوع (day)
+                $slotDate = $slot['date'] ?? '';
+                if ($slotDate !== $bookingDate) {
                     continue;
                 }
 
                 try {
-                    $from = Carbon::createFromFormat('H:i', (string) ($slot['from'] ?? ''));
-                    $to = Carbon::createFromFormat('H:i', (string) ($slot['to'] ?? ''));
+                    $fromMinutes = Carbon::parse($slot['from'])->hour * 60 + Carbon::parse($slot['from'])->minute;
+                    $toMinutes   = Carbon::parse($slot['to'])->hour * 60 + Carbon::parse($slot['to'])->minute;
                 } catch (\Throwable) {
                     continue;
                 }
 
-                // within [from, to)
-                if ($time->gte($from) && $time->lt($to)) {
-                    return;
+                // تحقق إذا الوقت داخل الـ slot
+                if ($bookingTimeMinutes >= $fromMinutes && $bookingTimeMinutes < $toMinutes) {
+                    $valid = true;
+                    break;
                 }
             }
 
-            $validator->errors()->add('booking_time', 'وقت الحجز يجب أن يكون ضمن مواعيد الطبيب المتوفرة في هذا اليوم.');
+            if (!$valid) {
+                $validator->errors()->add('booking_time', 'وقت الحجز يجب أن يكون ضمن مواعيد الطبيب المتوفرة في هذا اليوم.');
+            }
         });
     }
+
+
+
+//     public function messages()
+//     {
+//         return [
+//             'doctor_id.required' => 'حقل الطبيب مطلوب.',
+//             'doctor_id.integer' => 'حقل الطبيب يجب أن يكون رقماً صحيحاً.',
+//             'doctor_id.exists' => 'الطبيب المحدد غير موجود.',
+//             'booking_date.required' => 'حقل تاريخ الحجز مطلوب.',
+//             'booking_date.date_format' => 'حقل تاريخ الحجز يجب أن يكون بالتنسيق YYYY-MM-DD.',
+//             'booking_date.after_or_equal' => 'حقل تاريخ الحجز يجب أن يكون اليوم أو بعده.',
+//             'booking_time.required' => 'حقل وقت الحجز مطلوب.',
+//             'booking_time.date_format' => 'حقل وقت الحجز يجب أن يكون بالتنسيق HH:MM.',
+//             'price.required' => 'حقل السعر مطلوب.',
+//             'price.numeric' => 'حقل السعر يجب أن يكون رقمياً.',
+//             'price.min' => 'حقل السعر يجب أن يكون على الأقل :min.',
+//             'payment_method_id.required' => 'حقل طريقة الدفع مطلوب.',
+//             'payment_method_id.integer' => 'حقل طريقة الدفع يجب أن يكون رقماً صحيحاً.',
+//             'payment_method_id.exists' => 'طريقة الدفع المحددة غير موجودة.',
+//         ];
+//     }
 }

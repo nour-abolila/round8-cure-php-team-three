@@ -22,7 +22,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-//! ==================== notifications user ====================
+// notifications user 
 Route::middleware('auth:sanctum')->group(function () {
     // Notification Routes
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-//! ==================== reviews ====================
+// reviews 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/my-reviews', [ReviewController::class, 'myReviews']);
@@ -53,16 +53,14 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/reviews/top-doctors', [ReviewController::class, 'topRatedDoctors']);
 
 Route::get('/doctors/nearby', [DoctorController::class, 'nearby']); // Endpoint to find nearby doctors
-Route::get('/doctors/{id}', [DoctorController::class, 'show']); // Endpoint to get doctor details by ID
-
+Route::get('/doctors/{id}', [DoctorController::class, 'showById']); // Endpoint to get doctor details by ID
+Route::get('/doctors', [DoctorController::class, 'allDoctors']); // Endpoint to list all doctors with filters
 // ================== Auth system ============================
 Route::post('register',[UserController::class,'register']);
 Route::post('otpVerifyForRegister',[UserController::class,'otpVerifyForRegister']);
 Route::post('login',[UserController::class,'login']);
-Route::post('logout',[UserController::class,'logout'])
-->middleware('auth:sanctum')
-->name('logout');
-;
+Route::post('logout',[UserController::class,'logout'])->middleware('auth:sanctum')->name('logout');
+
 Route::delete('delete',[UserController::class,'deleteAccount'])->middleware('auth:sanctum');
 
 //password => forget & reset
@@ -78,7 +76,7 @@ Route::get('auth/google',[SocialiteController::class,'redirectToGoogle']);
 Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallback']);
 
 //patient profile
-Route::middleware(['auth:sanctum','role:patient'])->group(function() {
+Route::middleware(['auth:sanctum'])->group(function() {
 Route::get('/patient/profile/show',[PatientProfileController::class ,'show']);
 Route::put('/patient/profile/update',[PatientProfileController::class ,'update']);
 Route::put('/patient/profile/changePassword', [PatientProfileController::class, 'changePassword']);
@@ -90,6 +88,7 @@ Route::post('patient/bookings/{booking}/cancel',[BookingController::class,'cance
 Route::post('patient/bookings/{booking}/reschedule',[BookingController::class,'rescheduleByPatient']);
 });
 
+Route::get('payment-methods', [BookingController::class, 'getPaymentMethods']);
 
 
 Route::post('webhook/stripe', [PaymentWebhookController::class, 'handle']);
