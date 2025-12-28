@@ -353,26 +353,28 @@ class ReviewController extends Controller
     public function topRatedDoctors(): JsonResponse
     {
         try {
-            $stats = Review::select(
-                    'doctor_id',
-                    DB::raw('AVG(rating) as average_rating'),
-                    DB::raw('COUNT(*) as reviews_count')
+            $rows = Doctor::leftJoin('reviews', 'reviews.doctor_id', '=', 'doctors.id')
+                ->leftJoin('specializations', 'specializations.id', '=', 'doctors.specializations_id')
+                ->join('users', 'users.id', '=', 'doctors.user_id') // Join with users table
+                ->select(
+                    'doctors.id',
+                    'users.name', // Get name from users table
+                    'users.email', // Optionally get other user details
+                    DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
+                    DB::raw('COUNT(reviews.id) as reviews_count'),
+                    DB::raw('COALESCE(specializations.name, NULL) as specialization')
                 )
-                ->groupBy('doctor_id')
-                ->orderByDesc('average_rating')
-                ->orderByDesc('reviews_count')
+                ->groupBy('doctors.id', 'users.name', 'users.email', 'specializations.name')
+                ->orderByDesc(DB::raw('COALESCE(AVG(reviews.rating), 0)'))
+                ->orderByDesc(DB::raw('COUNT(reviews.id)'))
                 ->limit(8)
                 ->get();
 
-            $result = $stats->map(function ($row) {
-                $doctor = Doctor::select('id', 'name', 'specializations_id')
-                    ->with('specialization:id,name')
-                    ->find($row->doctor_id);
-
+            $result = $rows->map(function ($row) {
                 return [
-                    'id' => $doctor?->id,
-                    'name' => $doctor?->name,
-                    'specialization' => $doctor?->specialization->name ?? null,
+                    'id' => (int) $row->id,
+                    'name' => $row->name,
+                    'specialization' => $row->specialization,
                     'average_rating' => round((float) $row->average_rating, 1),
                     'reviews_count' => (int) $row->reviews_count,
                 ];

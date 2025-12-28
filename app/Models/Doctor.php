@@ -13,11 +13,11 @@ class Doctor extends Authenticatable
 
     protected $fillable = [
         'user_id',
-         'name',
-        'email',
-        'password',
+        //  'name',
+        // 'email',
+        // 'password',
         'specializations_id',
-         'mobile_number',
+        //  'mobile_number',
         'license_number',
         'session_price',
         'availability_slots',
@@ -69,7 +69,7 @@ class Doctor extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
-    
+
     public function unreadNotifications()
     {
         return $this->notifications()->where('is_read', false);

@@ -12,9 +12,24 @@ class DoctorBookingsSeeder extends Seeder
 {
     public function run()
     {
-        $doctorId = 1;
+        $doctor = \App\Models\Doctor::first();
 
-        $users = User::take(1)->get();
+        if (!$doctor) {
+            $this->command->warn('No doctors found. Skipping DoctorBookingsSeeder.');
+            return;
+        }
+
+        $doctorId = $doctor->id;
+
+        // Create a user to act as a patient if none exist (excluding the doctor's user)
+        $user = User::where('id', '!=', $doctor->user_id)->first();
+
+        if (!$user) {
+             $user = User::factory()->create();
+             $user->assignRole('patient');
+        }
+
+        $users = [$user]; // Use array for loop compatibility
 
         $statuses = ['Upcoming', 'Completed', 'Cancelled'];
 
