@@ -68,4 +68,11 @@ class Doctor extends Authenticatable
     {
         return $this->notifications()->where('is_read', false);
     }
+
+    public function helpers()
+    {
+        return $this->belongsToMany(User::class, 'doctor_helper', 'doctor_id', 'helper_id');
+    }
+
+
 }
