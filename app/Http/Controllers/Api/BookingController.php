@@ -94,6 +94,13 @@ class BookingController extends Controller
         return response()->json($bookings);
     }
 
+    public function allBookings()
+    {
+        $bookings = $this->bookingsRepositories->getBookings();
+
+        return response()->json($bookings);
+    }
+
     public function index(Request $request)
     {
         $doctorId = auth()->user()->id;

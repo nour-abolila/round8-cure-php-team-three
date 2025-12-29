@@ -22,7 +22,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// notifications user 
+// notifications user
 Route::middleware('auth:sanctum')->group(function () {
     // Notification Routes
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-// reviews 
+// reviews
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/my-reviews', [ReviewController::class, 'myReviews']);
@@ -92,6 +92,8 @@ Route::post('patient/bookings/{booking}/reschedule',[BookingController::class,'r
 });
 
 Route::get('payment-methods', [BookingController::class, 'getPaymentMethods']);
+
+Route::get('allBookings', [BookingController::class, 'allBookings']);
 
 
 Route::post('webhook/stripe', [PaymentWebhookController::class, 'handle']);
