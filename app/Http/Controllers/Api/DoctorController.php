@@ -24,10 +24,10 @@ class DoctorController extends Controller
             ->select('*')
             ->selectRaw(
                 '(6371 * acos(
-                cos(radians(?)) 
-                * cos(radians(JSON_EXTRACT(clinic_location, "$.lat"))) 
-                * cos(radians(JSON_EXTRACT(clinic_location, "$.lng")) - radians(?)) 
-                + sin(radians(?)) 
+                cos(radians(?))
+                * cos(radians(JSON_EXTRACT(clinic_location, "$.lat")))
+                * cos(radians(JSON_EXTRACT(clinic_location, "$.lng")) - radians(?))
+                + sin(radians(?))
                 * sin(radians(JSON_EXTRACT(clinic_location, "$.lat")))
             )) AS distance',
                 [$lat, $lng, $lat]
@@ -90,6 +90,7 @@ class DoctorController extends Controller
             'reviews_count' => $doctor->reviews()->count(),
             'average_rating' => $doctor->averageRating(),
             'patients_count' => $doctor->bookings()->distinct('user_id')->count(),
+            'experience_years' => $doctor->experience_years,
         ];
 
         return response()->json($data);

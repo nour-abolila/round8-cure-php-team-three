@@ -95,6 +95,8 @@ Route::post('patient/bookings/{booking}/reschedule',[BookingController::class,'r
 
 Route::get('payment-methods', [BookingController::class, 'getPaymentMethods']);
 
+Route::get('allBookings', [BookingController::class, 'allBookings']);
+
 
 Route::post('webhook/stripe', [PaymentWebhookController::class, 'handle']);
 

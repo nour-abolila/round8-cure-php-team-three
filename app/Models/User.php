@@ -90,4 +90,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Admin::class);
     }
+    public function doctors()
+{
+    return $this->belongsToMany(Doctor::class, 'doctor_helper', 'helper_id', 'doctor_id');
+}
+
 }

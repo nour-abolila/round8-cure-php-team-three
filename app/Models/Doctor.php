@@ -19,6 +19,7 @@ class Doctor extends Authenticatable
         'availability_slots',
         'clinic_location',
         'about_me',
+        'experience_years',
     ];
 
     protected $casts = [   // هنا عملت دة عشان انا كاتب الداتا دى فى المايجريشن جيسون
@@ -68,4 +69,11 @@ class Doctor extends Authenticatable
     {
         return $this->notifications()->where('is_read', false);
     }
+
+    public function helpers()
+    {
+        return $this->belongsToMany(User::class, 'doctor_helper', 'doctor_id', 'helper_id');
+    }
+
+
 }
