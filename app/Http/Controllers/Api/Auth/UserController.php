@@ -6,11 +6,11 @@ use App\Models\User;
 use App\Models\Patient;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log; 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-class UserController extends Controller
+use Illuminate\Support\Facades\Auth; 
+class UserController extends Controller 
 {
     public function register(Request $request)
     {
@@ -203,9 +203,9 @@ class UserController extends Controller
 
                     return response()->json(
                         [
+                            'Status' => true,
+
                             'message' =>'Login Successfully',
-                            
-                            'User' => $user,
                             
                             'Token' => $token,
                 ], 201);
