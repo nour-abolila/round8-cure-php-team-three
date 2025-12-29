@@ -17,5 +17,15 @@ class PaymentMethodSeeder extends Seeder
             'name' => 'Credit Card',
             'code' => 'credit_card',
         ]);
+
+        Payment_method::create([
+            'name' => 'PayPal',
+            'code' => 'paypal',
+        ]);
+
+        Payment_method::create([
+            'name' => 'Apple Pay',
+            'code' => 'apple_pay',
+        ]);
     }
 }

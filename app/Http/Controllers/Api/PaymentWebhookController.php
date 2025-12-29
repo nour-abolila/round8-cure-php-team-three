@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Stripe\Webhook;
 
 class PaymentWebhookController extends Controller
 {
@@ -20,19 +21,34 @@ class PaymentWebhookController extends Controller
     {
         Log::info('Stripe webhook received', $request->all());
 
+    //     $payload = $request->getContent();
+    //     $sigHeader = $request->header('Stripe-Signature');
+    //     $secret = config('services.stripe.webhook_secret');
+
+    // try {
+    //     $event = Webhook::constructEvent($payload, $sigHeader, $secret);
+    // } catch (\Throwable $e) {
+    //     return response()->json(['error' => 'Invalid signature'], 400);
+    // }
+
         $event = $request->input('type');
         $intent = $request->input('data.object');
 
+        // $intent = $event->data->object;
+
         if ($event === 'payment_intent.succeeded') {
+            \Log::info('Payment Intent Succeeded', $intent);
             $payment = Payment::where('transaction_id', $intent['id'])->first();
 
             if ($payment) {
-                $payment->update(['status' => 'success']);
+                $payment->update([
+                    'status' => 'success',
+                    'response' => $intent
+                ]);
                 $payment->booking->update(['status' => BookingStatus::Upcoming]);
 
-                // حذف الموعد من المواعيد المتاحة بعد نجاح الدفع
-                $this->bookingsRepositories->deleteAppointment($payment->booking);
-                $payment->booking->update(['status' => BookingStatus::Completed]);
+                // $this->bookingsRepositories->deleteAppointment($payment->booking);
+                // $payment->booking->update(['status' => BookingStatus::Completed]);
 
                 $doctorUser = optional($payment->booking->doctor)->user;
                 if ($doctorUser) {
@@ -47,7 +63,12 @@ class PaymentWebhookController extends Controller
                     (new NotificationService())->sendSystemAlertNotification($admin, 'Payment Succeeded', 'Payment completed for booking #'.$payment->booking_id);
                 }
             }
-            return response()->json(['ok' => true]);
+            return response()->json([
+                'ok' => true,
+                'message' => 'Payment completed successfully',
+                'payment' => $payment,
+                'booking' => $payment->booking,
+            ]);
         }
 
         if ($event === 'payment_intent.payment_failed') {

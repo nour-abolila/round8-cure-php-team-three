@@ -23,7 +23,7 @@ class DoctorUpdateRequest extends FormRequest
     {
         return [
             'user_id' => ['sometimes','integer','exists:users,id'],
-            'specialization_id' => ['sometimes','exists:specializations,id'],
+            'specializations_id' => ['sometimes','exists:specializations,id'],
             'license_number' => ['sometimes'],
             'session_price' => ['sometimes'],
             'availability_slots' => ['nullable'],

@@ -25,6 +25,10 @@ class DatabaseSeeder extends Seeder
             PaymentMethodSeeder::class,
 
             DoctorBookingsSeeder::class,
+
+            ReviewSeeder::class,
+
+            NotificationSeeder::class,
         ]);
     }
 }

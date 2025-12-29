@@ -42,6 +42,7 @@ class DoctorFactory extends Factory
         return [
             'specializations_id' => $this->faker->randomElement($specializations),
             'license_number' => $this->faker->bothify('LIC#####'),
+            'about_me' => $this->faker->paragraphs(2, true),
             'session_price' => $this->faker->numberBetween(100, 500),
             'availability_slots' => $slots,
             'clinic_location' => [
@@ -49,7 +50,7 @@ class DoctorFactory extends Factory
                 'lng' => 31.2357 + $this->faker->randomFloat(4, -0.1, 0.1),
                 'address' => 'Cairo, Egypt',
             ],
-
+            'experience_years' => $this->faker->numberBetween(1, 30),
         ];
     }
 }
