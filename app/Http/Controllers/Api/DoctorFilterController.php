@@ -46,38 +46,35 @@ class DoctorFilterController extends Controller
         ]);
     }
 
-    public function search(Request $request)
-    {
-        $query = Doctor::with(['user', 'specialization']);
+ public function search(Request $request)
+{
+    $request->validate([
+        'search' => 'required|string|min:2',
+    ]);
 
-        // 1. Search by Name
-        if ($request->has('name')) {
-            $name = $request->input('name');
-            $query->whereHas('user', function ($q) use ($name) {
-                $q->where('name', 'LIKE', '%' . $name . '%');
-            });
-        }
+    $searchQuery = $request->input('search');
 
-        // 2. Search by Specialization
-        if ($request->has('specialization')) {
-            $specialization = $request->input('specialization');
-            $query->whereHas('specialization', function ($q) use ($specialization) {
-                $q->where('name', 'LIKE', '%' . $specialization . '%');
-            });
-        }
+    $query = Doctor::with(['user', 'specialization']);
 
-        $doctors = $query->paginate(10);
-
-        // Transform the collection to include calculated fields
-        $doctors->getCollection()->transform(function ($doctor) {
-            return $this->transformDoctor($doctor);
+    $query->where(function ($q) use ($searchQuery) {
+        $q->whereHas('user', function ($subQ) use ($searchQuery) {
+            $subQ->where('name', 'like', '%' . $searchQuery . '%');
+        })->orWhereHas('specialization', function ($subQ) use ($searchQuery) {
+            $subQ->where('name', 'like', '%' . $searchQuery . '%');
         });
+    });
 
-        return response()->json([
-            'success' => true,
-            'data' => $doctors
-        ]);
-    }
+    $doctors = $query->paginate(10);
+
+    $doctors->getCollection()->transform(function ($doctor) {
+        return $this->transformDoctor($doctor);
+    });
+
+    return response()->json([
+        'success' => true,
+        'data' => $doctors
+    ]);
+}
 
     private function transformDoctor($doctor)
     {
