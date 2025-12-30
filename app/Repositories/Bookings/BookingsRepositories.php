@@ -52,7 +52,7 @@ class BookingsRepositories
     }
     public function getBookingsByUserId($userId)
     {
-        return Booking::with(['doctor', 'payment' => function($query) {
+        return Booking::with(['doctor.user','doctor.specialization', 'payment.booking' => function($query) {
                     $query->where('status', '!=', 'pending');
                 }, 'paymentMethod'])
                 ->where('user_id', $userId)
@@ -65,7 +65,7 @@ class BookingsRepositories
 
     public function getBookings()
     {
-        return Booking::with(['user', 'payment', 'paymentMethod', 'doctor'])
+        return Booking::with(['user', 'payment', 'paymentMethod', 'doctor.specialization', 'doctor.user'])
                 ->orderByDesc('created_at')
                 ->get();
     }
@@ -95,12 +95,25 @@ class BookingsRepositories
     public function deleteAppointment(Booking $booking): void
     {
         $doctor = $booking->doctor;
+        if (!$doctor) {
+            return;
+        }
+
         $slots = is_array($doctor->availability_slots) ? $doctor->availability_slots : [];
 
-        $bookingDate = $booking->booking_date;
-        $bookingTime = $booking->booking_time;
+        // التأكد من التنسيق الصحيح للتاريخ والوقت
+        try {
+            $bookingDate = is_string($booking->booking_date)
+                ? $booking->booking_date
+                : Carbon::parse($booking->booking_date)->format('Y-m-d');
 
-        // حذف الـ slot الذي يطابق التاريخ والوقت
+            $bookingTime = is_string($booking->booking_time)
+                ? $booking->booking_time
+                : Carbon::parse($booking->booking_time)->format('H:i');
+        } catch (\Throwable $e) {
+            return; // إذا كان التنسيق غير صحيح، لا نحذف شيء
+        }
+
         $slots = array_filter($slots, function($slot) use ($bookingDate, $bookingTime) {
             if (!is_array($slot)) {
                 return true;
@@ -123,20 +136,47 @@ class BookingsRepositories
     public function restoreAppointment(Booking $booking): void
     {
         $doctor = $booking->doctor;
+        if (!$doctor) {
+            return;
+        }
+
         $slots = is_array($doctor->availability_slots) ? $doctor->availability_slots : [];
 
-        $bookingDate = $booking->booking_date;
-        $bookingTime = $booking->booking_time;
+        // التأكد من التنسيق الصحيح للتاريخ والوقت
+        try {
+            $bookingDate = is_string($booking->booking_date)
+                ? $booking->booking_date
+                : Carbon::parse($booking->booking_date)->format('Y-m-d');
 
-        // إضافة الـ slot مرة أخرى (باستخدام date بدل day)
-        $slots[] = [
-            'date' => $bookingDate,
-            'from' => $bookingTime,
-            'to' => Carbon::parse($bookingTime)->addMinutes(30)->format('H:i'),
-        ];
+            $bookingTime = is_string($booking->booking_time)
+                ? $booking->booking_time
+                : Carbon::parse($booking->booking_time)->format('H:i');
+        } catch (\Throwable $e) {
+            return; // إذا كان التنسيق غير صحيح، لا نضيف شيء
+        }
 
-        $doctor->availability_slots = array_values($slots);
-        $doctor->save();
+        // التحقق من عدم وجود الـ slot مسبقاً (لتجنب التكرار)
+        $slotExists = false;
+        foreach ($slots as $slot) {
+            if (is_array($slot) &&
+                ($slot['date'] ?? '') === $bookingDate &&
+                ($slot['from'] ?? '') === $bookingTime) {
+                $slotExists = true;
+                break;
+            }
+        }
+
+        // إضافة الـ slot فقط إذا لم يكن موجوداً
+        if (!$slotExists) {
+            $slots[] = [
+                'date' => $bookingDate,
+                'from' => $bookingTime,
+                'to' => Carbon::parse($bookingTime)->addMinutes(30)->format('H:i'),
+            ];
+
+            $doctor->availability_slots = array_values($slots);
+            $doctor->save();
+        }
     }
 
 }
