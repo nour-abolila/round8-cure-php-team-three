@@ -28,24 +28,26 @@ class UpdateBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'doctor_id' => ['sometimes', 'integer', 'exists:doctors,id'],// for function withValidator
-            'booking_date' => ['sometimes', 'date', 'after_or_equal:today'],
-            'booking_time' => ['sometimes', 'date_format:H:i'],
+            'doctor_id' => ['required', 'integer', 'exists:doctors,id'],// for function withValidator
+            'booking_date' => ['required', 'date', 'after_or_equal:today'],
+            'booking_time' => ['required', 'date_format:H:i'],
+            'payment_method_id' => ['required', 'integer', 'exists:payment_methods,id']
         ];
     }
 
     // للتحقق من الوقت المتاح للطبيب
-    public function withValidator(Validator $validator): void
+   public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
             $doctorId = $this->input('doctor_id');
             $bookingDate = $this->input('booking_date');
-            $bookingTime = $this->input('booking_time');
+            $bookingTime = trim($this->input('booking_time')); // إزالة أي فراغات
 
             if (!$doctorId || !$bookingDate || !$bookingTime) {
                 return;
             }
-            //بحال كان في حجز بنفس الوقت والتاريخ من مستخدم تاني
+
+            // تحقق من عدم وجود حجز متضارب
             $conflictExists = Booking::query()
                 ->where('doctor_id', $doctorId)
                 ->whereDate('booking_date', $bookingDate)
@@ -64,38 +66,41 @@ class UpdateBookingRequest extends FormRequest
             }
 
             try {
-                $date = Carbon::parse($bookingDate);
-                $time = Carbon::createFromFormat('H:i', (string) $bookingTime);
+                $bookingTimeMinutes = Carbon::parse($bookingTime)->hour * 60 + Carbon::parse($bookingTime)->minute;
             } catch (\Throwable) {
+                $validator->errors()->add('booking_time', 'تنسيق الوقت غير صحيح.');
                 return;
             }
 
-            $dayName = strtolower($date->format('l'));
             $slots = is_array($doctor->availability_slots) ? $doctor->availability_slots : [];
+            $valid = false;
 
             foreach ($slots as $slot) {
-                if (!is_array($slot)) {
-                    continue;
-                }
+                if (!is_array($slot)) continue;
 
-                if (strtolower((string) ($slot['day'] ?? '')) !== $dayName) {
+                // مقارنة التاريخ مباشرة (date) وليس يوم الأسبوع (day)
+                $slotDate = $slot['date'] ?? '';
+                if ($slotDate !== $bookingDate) {
                     continue;
                 }
 
                 try {
-                    $from = Carbon::createFromFormat('H:i', (string) ($slot['from'] ?? ''));
-                    $to = Carbon::createFromFormat('H:i', (string) ($slot['to'] ?? ''));
+                    $fromMinutes = Carbon::parse($slot['from'])->hour * 60 + Carbon::parse($slot['from'])->minute;
+                    $toMinutes   = Carbon::parse($slot['to'])->hour * 60 + Carbon::parse($slot['to'])->minute;
                 } catch (\Throwable) {
                     continue;
                 }
 
-                // within [from, to)
-                if ($time->gte($from) && $time->lt($to)) {
-                    return;
+                // تحقق إذا الوقت داخل الـ slot
+                if ($bookingTimeMinutes >= $fromMinutes && $bookingTimeMinutes < $toMinutes) {
+                    $valid = true;
+                    break;
                 }
             }
 
-            $validator->errors()->add('booking_time', 'وقت الحجز يجب أن يكون ضمن مواعيد الطبيب المتوفرة في هذا اليوم.');
+            if (!$valid) {
+                $validator->errors()->add('booking_time', 'وقت الحجز يجب أن يكون ضمن مواعيد الطبيب المتوفرة في هذا اليوم.');
+            }
         });
     }
 }

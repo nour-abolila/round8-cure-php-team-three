@@ -135,23 +135,34 @@ class BookingController extends Controller
     {
         $booking = $this->bookingsRepositories->findById($id);
 
+        // حفظ القيم القديمة قبل التحديث
+        $oldBookingDate = $booking->booking_date;
+        $oldBookingTime = $booking->booking_time;
+
+        // إعادة الموعد القديم إلى المواعيد المتاحة
         $this->bookingsRepositories->restoreAppointment($booking);
 
+        // تحديث الحجز بالقيم الجديدة
         $this->bookingsRepositories->update($booking, [
             'booking_date' => $request->booking_date,
             'booking_time' => $request->booking_time,
             'status' => BookingStatus::Rescheduled->value,
         ]);
 
-        $this->bookingsRepositories->deleteAppointment($booking);
+        // إعادة تحميل الـ booking لضمان توفر القيم الجديدة
+        $booking->refresh();
+        $booking->load('doctor');
 
-        $paymentMethod = Payment_method::findOrFail($booking->payment_method_id);
+        $paymentMethod = Payment_method::findOrFail($request->payment_method_id);
+
+        // حذف الموعد الجديد من المواعيد المتاحة
+        $this->bookingsRepositories->deleteAppointment($booking);
 
         $payment = $this->paymentService->process($booking, $paymentMethod);
 
         return response()->json([
             'success' => true,
-            'booking' => $booking,
+            'booking' => $booking->load(['paymentMethod', 'payment', 'user', 'doctor.user', 'doctor.specialization']),
             'payment' => $payment,
             'message' => 'Payment is pending',
         ]);
