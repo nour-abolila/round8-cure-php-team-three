@@ -1,101 +1,29 @@
-# Project Setup & Git Workflow Guide
+# 🏥 Doctor Management & Booking System
 
-This README provides the essential steps for setting up the Laravel project locally, along with simple GitHub workflow instructions for collaboration.
-
----
-
-## 🚀 Project Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/Huma-volve/round8-cure-php-team-three.git
-```
-
-Install dependencies:
-
-```bash
-composer install
-```
-
-Copy environment file:
-
-```bash
-cp .env.example .env
-```
-
-Generate Laravel app key:
-
-```bash
-php artisan key:generate
-```
-
-Run migrations:
-
-```bash
-php artisan migrate
-```
-
-Start the server:
-
-```bash
-php artisan serve
-```
+## Overview
+This project is a **Doctor & Clinic Booking System** 🩺, allowing users to find doctors, check availability, and book sessions easily. My contribution focused on the **Doctor Module**, handling all doctor-related data and APIs.
 
 ---
 
-## 🌿 GitHub Workflow Instructions
+## 💼 My Work
 
-### 🔹 1. Create a New Branch (Run once per feature)
-
-```bash
-git checkout -b branch-name
-```
-
-This command creates a new branch **and switches to it immediately**.  
-Use it **only once** when creating a new branch.
-
----
-
-### 🔹 2. Save & Push Your Work
-
-```bash
-git add .
-git commit -m "your message"
-git push origin branch-name
-```
-
-- `git add .` → Stage all changes  
-- `git commit` → Save changes locally  
-- `git push` → Upload branch to GitHub  
+- Managed **Doctor profiles** with key info (name, email, specialization, profile photo) 👨‍⚕️👩‍⚕️.
+- Added **geolocation** (lat & lng) for each doctor to find the nearest doctor 🌍📍.
+- Implemented **availability slots** with future dates & precise time intervals ⏰📅.
+- Linked **specialization details** (name + ID + optional image) 🧬.
+- Aggregated stats for doctors:
+  - `reviews_count` 📝
+  - `average_rating` ⭐️
+  - `patients_count` 👥
+- Data exposed via **API** with **pagination** for smooth frontend consumption 📡.
 
 ---
 
-### 🔹 3. Pull Latest Updates From Main
-
-Use this to stay updated with the latest code:
-
-```bash
-git pull origin main
-```
-
-Run this frequently to avoid merge conflicts.
+## 🛠 Technical Notes
+- Built with **Laravel**, structured using **API Resources, Form Requests & Service Layer** for clean code.
+- All sensitive info like passwords is hidden 🔒.
+- Test data generated via **Factories & Seeders** for easy development.
 
 ---
 
-### Pulling Updates Without Losing Local Changes
-
-If you have local changes that you don’t want to push yet, you can temporarily store them, pull the latest updates, and then re-apply your changes using:
-
-```bash
-git stash            # Temporarily saves your local changes
-git pull origin main # Pulls the latest changes from the main branch
-git stash pop        # Restores your previously stashed changes
-```
-
-## ✅ Notes
-
-- Always make pull request whene you push.  
-- Never push directly to the **main** branch.  
-- Always pull before starting new work.  
-
+✨ Fully integrated, production-ready Doctor Module, ready to connect with future booking & patient features.
